@@ -1,11 +1,14 @@
+# %%          IMPORTS
+############# IMPORTS ##########################################################################################################
+
 from typing import TypedDict, Literal
 from pathlib import Path
 import json
 
-Data = TypedDict("Data", {"text/plain": list[str]})
-
 # %%          CLASSES
-############# CLASSES ##################################################################
+############# CLASSES ##########################################################################################################
+
+Data = TypedDict("Data", {"text/plain": list[str]})
 
 
 class Output(TypedDict):
@@ -31,7 +34,7 @@ class Notebook(TypedDict):
 
 
 # %%          AUX FUNCTIONS
-############# AUX FUNCTIONS ############################################################
+############# AUX FUNCTIONS ####################################################################################################
 
 
 def end_snippet(previous_was_snippet: bool):
@@ -53,7 +56,7 @@ def get_outputs(cell: Cell):
 
 
 # %%          FORMAT FUNCTIONS
-############# FORMAT FUNCTIONS #########################################################################
+############# FORMAT FUNCTIONS #################################################################################################
 
 
 def format_markdown_cell(cell: Cell, previous_was_snippet: bool) -> str:
@@ -81,7 +84,7 @@ def format_python_snippet_cell(cell: Cell, previous_was_snippet: bool):
 
 
 # %%          MAIN FUNCTION
-############# MAIN FUNCTION #########################################################################
+############# MAIN FUNCTION ####################################################################################################
 
 
 def genbdoc(filepath: Path | None = None, kind: Literal["tutorial", "function", "class"] = "tutorial"):
@@ -114,3 +117,8 @@ def genbdoc(filepath: Path | None = None, kind: Literal["tutorial", "function", 
             else:
                 lines.append(format_python_snippet_cell(cell, previous_was_simple_python_snippet_cell))
                 previous_was_simple_python_snippet_cell = True
+
+    text: str = "".join(lines)
+    
+    with open(filepath.with_suffix(".md"), "w", encoding="utf-8") as file
+        file.write(text)
