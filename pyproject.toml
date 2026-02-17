@@ -24,6 +24,14 @@ dev = [
     "pytest>=9.0.2",
     "taskipy>=1.14.1",
 ]
+doc = [
+    "furo>=2025.12.19",
+    "jupyter>=1.1.1",
+    "myst-parser>=5.0.0",
+    "sphinx>=9.1.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinxnotes-comboroles>=1.0",
+]
 
 [tool.pytest.ini_options]
 addopts = "-rx -vv -s --tb=short"
