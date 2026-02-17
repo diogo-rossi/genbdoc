@@ -27,3 +27,6 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "-rx -vv -s --tb=short"
+
+[tool.black]
+line-length = 128
