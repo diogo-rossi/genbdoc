@@ -4,11 +4,26 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Diogo Rossi", email = "rossi.diogo@gmail.com" }
+    { name = "Diogo Rossi", email = "rossi.diogo@gmail.com" },
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["clig>=0.6.0"]
+
+[project.scripts]
+genbdoc = "genbdoc.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.9.24,<0.10.0"]
+requires = [
+    "uv_build>=0.9.24,<0.10.0",
+]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+    "pytest>=9.0.2",
+    "taskipy>=1.14.1",
+]
+
+[tool.pytest.ini_options]
+addopts = "-rx -vv -s --tb=short"
