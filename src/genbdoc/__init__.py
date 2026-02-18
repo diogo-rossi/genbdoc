@@ -3,6 +3,7 @@
 
 from typing import TypedDict, Literal
 from pathlib import Path
+from collections.abc import Iterable
 import json
 import os
 
@@ -116,48 +117,53 @@ def __is_python_repl_code_cell(cell: Cell) -> bool:
 ############# MAIN FUNCTION ####################################################################################################
 
 
-def genbdoc(
-    filepath: Path | None = None,
+def nbtomd(
+    filepath: list[Path] | Path,
     kind: Literal["tutorial", "function", "class"] = "tutorial",
     prettier: bool = True,
 ):
 
-    if filepath is None:
-        return
+    if not isinstance(filepath, Iterable):
+        filepath = [filepath]
 
-    with open(filepath.resolve(), "r", encoding="utf-8") as file:
-        notebook: Notebook = json.load(file)
+    for path in filepath:
 
-    lines: list[str] = []
+        if path is None:
+            return
 
-    previous_was_simple_python_repl_snippet: bool = False
-    for cell in notebook["cells"]:
+        with open(path.resolve(), "r", encoding="utf-8") as file:
+            notebook: Notebook = json.load(file)
 
-        if cell["metadata"] and "to_hide" in cell["metadata"]["tags"]:
-            continue
+        lines: list[str] = []
 
-        if cell["cell_type"] == "markdown":
-            lines.append(__format_markdown_cell(cell, previous_was_simple_python_repl_snippet))
-            previous_was_simple_python_repl_snippet = False
+        previous_was_simple_python_repl_snippet: bool = False
+        for cell in notebook["cells"]:
 
-        if __is_shell_command_code_cell(cell):
-            lines.append(__format_shell_cell(cell, previous_was_simple_python_repl_snippet))
-            previous_was_simple_python_repl_snippet = False
+            if cell["metadata"] and "to_hide" in cell["metadata"]["tags"]:
+                continue
 
-        if __is_python_file_code_cell(cell):
-            lines.append(__format_python_file_cell(cell, previous_was_simple_python_repl_snippet))
-            previous_was_simple_python_repl_snippet = False
+            if cell["cell_type"] == "markdown":
+                lines.append(__format_markdown_cell(cell, previous_was_simple_python_repl_snippet))
+                previous_was_simple_python_repl_snippet = False
 
-        if __is_python_repl_code_cell(cell):
-            lines.append(__format_python_repl_snippet_cell(cell, previous_was_simple_python_repl_snippet))
-            previous_was_simple_python_repl_snippet = True
+            if __is_shell_command_code_cell(cell):
+                lines.append(__format_shell_cell(cell, previous_was_simple_python_repl_snippet))
+                previous_was_simple_python_repl_snippet = False
 
-    text: str = "".join(lines)
+            if __is_python_file_code_cell(cell):
+                lines.append(__format_python_file_cell(cell, previous_was_simple_python_repl_snippet))
+                previous_was_simple_python_repl_snippet = False
 
-    markdown_filepath: Path = filepath.with_suffix(".md")
+            if __is_python_repl_code_cell(cell):
+                lines.append(__format_python_repl_snippet_cell(cell, previous_was_simple_python_repl_snippet))
+                previous_was_simple_python_repl_snippet = True
 
-    with open(markdown_filepath, "w", encoding="utf-8") as file:
-        file.write(text)
+        text: str = "".join(lines)
 
-    if prettier:
-        os.system(f"prettier --write {markdown_filepath}")
+        markdown_filepath: Path = path.with_suffix(".md")
+
+        with open(markdown_filepath, "w", encoding="utf-8") as file:
+            file.write(text)
+
+        if prettier:
+            os.system(f"prettier --write {markdown_filepath}")

@@ -4,4 +4,4 @@ import genbdoc
 
 
 def test_write_md_file():
-    genbdoc.genbdoc(notebook_filepath)
+    genbdoc.nbtomd(notebook_filepath)
