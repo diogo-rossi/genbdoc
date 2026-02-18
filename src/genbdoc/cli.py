@@ -3,11 +3,11 @@ from genbdoc import nbtomd
 import genbdoc.init
 
 
-def pyproj():
+def pyprojdev():
     pass
 
 
-def doc():
+def docs():
     pass
 
 
@@ -22,9 +22,9 @@ def genex():
 def main():
     # fmt: off
     (
-        clig.Command(pyproj, make_shorts=True)
+        clig.Command(pyprojdev, make_shorts=True)
         .add_subcommand(genbdoc.init.init)
-        .new_subcommand(doc)
+        .new_subcommand(docs)
             .add_subcommand(init)
             .add_subcommand(nbtomd, make_shorts=True)
             .end_subcommand(genex)

@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = ["clig>=0.6.0"]
 
 [project.scripts]
-pyproj = "genbdoc.cli:main"
+pyprojdev = "genbdoc.cli:main"
 
 [build-system]
 requires = [
