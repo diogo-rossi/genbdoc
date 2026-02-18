@@ -166,3 +166,75 @@ def nbtomd(
 
         if prettier:
             os.system(f"prettier --write {markdown_filepath}")
+
+
+def __get_notebook_example_prefix(cells: list[Cell]) -> str:
+    for cell in reversed(cells):
+        if cell["metadata"]:
+            for tag in cell["metadata"]["tags"]:
+                if tag.startswith("ex_"):
+                    return tag.removeprefix("ex_")
+    return "example"
+
+
+from clig import Arg, data
+
+
+def genex(
+    filepath: Arg[list[Path] | Path, data(nargs="*")],
+    change_shell_cells: bool = False,
+    output_suffix: str = "",
+):
+
+    if not filepath:
+        filepath = list(Path.cwd().glob("*.ipynb"))
+
+    if not isinstance(filepath, Iterable):
+        filepath = [filepath]
+
+    for path in filepath:
+
+        with open(path.resolve(), "r", encoding="utf-8") as file:
+            notebook: Notebook = json.load(file)
+
+        cells: list[Cell] = notebook["cells"]
+
+        example_number: int = 0
+        previous_example_prefix: str = __get_notebook_example_prefix(cells[:1])
+        example_prefix = previous_example_prefix
+
+        for i, cell in enumerate(cells):
+
+            source: list[str] | None = cell.get("source")
+
+            if __is_python_file_code_cell(cell):
+                example_prefix: str = __get_notebook_example_prefix(cells[: i + 1])
+                if example_prefix == previous_example_prefix:
+                    example_number += 1
+                else:
+                    example_number = 1
+                    previous_example_prefix = example_prefix
+
+                example_filename: str = f"{example_prefix}{example_number:02d}.py"
+                source[1] = f"# {example_filename}\n"
+
+                with open(example_filename, "w", encoding="utf-8") as file:
+                    file.write("".join(source[1:]))
+
+            if change_shell_cells:
+                if __is_shell_command_code_cell(cell):
+                    if source[0].startswith("! python") and any([s.endswith(".py") for s in source[0].split()]):
+                        parts: list[str] = source[0].split(".py")
+                        parts[0] = f"! python {example_prefix}{example_number:02d}.py"
+                        source[0] = "".join(parts)
+
+            if source:
+                cell["source"] = source  # update source
+                cells[i] = cell  # update cell
+
+        notebook["cells"] = cells
+        if output_suffix:
+            path: Path = path.with_suffix(f".{output_suffix}.ipynb")
+
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(notebook, file, indent=4)

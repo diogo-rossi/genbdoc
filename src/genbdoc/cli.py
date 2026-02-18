@@ -1,5 +1,5 @@
 import clig
-from genbdoc import nbtomd
+from genbdoc import nbtomd, genex
 import genbdoc.init
 
 
@@ -15,10 +15,6 @@ def init():
     pass
 
 
-def genex():
-    pass
-
-
 def main():
     # fmt: off
     (
@@ -27,5 +23,5 @@ def main():
         .new_subcommand(docs)
             .add_subcommand(init)
             .add_subcommand(nbtomd, make_shorts=True)
-            .end_subcommand(genex)
+            .end_subcommand(genex, make_shorts=True)
     ).run()
