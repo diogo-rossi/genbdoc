@@ -130,9 +130,6 @@ def nbtomd(
 
     for path in filepath:
 
-        if path is None:
-            return
-
         with open(path.resolve(), "r", encoding="utf-8") as file:
             notebook: Notebook = json.load(file)
 
