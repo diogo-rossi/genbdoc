@@ -93,12 +93,12 @@ def __format_python_repl_snippet_cell(cell: Cell, previous_was_snippet: bool):
     return content.strip() + "\n" + __get_outputs(cell)
 
 
-def __is_code_cell_with_content(cell: Cell) -> bool:
+def __is_code_cell_with_source_content(cell: Cell) -> bool:
     return cell["cell_type"] == "code" and len(cell["source"]) > 0
 
 
 def __is_code_cell_starting_with(cell: Cell, char: str) -> bool:
-    return __is_code_cell_with_content(cell) and cell["source"][0].startswith(char)
+    return __is_code_cell_with_source_content(cell) and cell["source"][0].startswith(char)
 
 
 def __is_shell_command_code_cell(cell: Cell) -> bool:
@@ -106,11 +106,13 @@ def __is_shell_command_code_cell(cell: Cell) -> bool:
 
 
 def __is_python_file_code_cell(cell: Cell) -> bool:
-    return __is_code_cell_starting_with(cell, "%%")
+    return __is_code_cell_starting_with(cell, "%%") and cell["source"][1].startswith("#")
 
 
 def __is_python_repl_code_cell(cell: Cell) -> bool:
-    return __is_code_cell_with_content(cell) and not any([__is_shell_command_code_cell(cell), __is_python_file_code_cell(cell)])
+    return __is_code_cell_with_source_content(cell) and not any(
+        [__is_shell_command_code_cell(cell), __is_python_file_code_cell(cell)]
+    )
 
 
 # %%          MAIN FUNCTION
